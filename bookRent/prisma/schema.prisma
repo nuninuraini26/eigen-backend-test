@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model books {
+  book_id String  @id @db.VarChar(255)
+  title   String?
+  author  String?
+  stock   Int
+
+  @@index([book_id], map: "idx_bookid")
+}
+
+model members {
+  member_id          String         @id @db.VarChar(255)
+  name               String?
+  is_penalized       Boolean?       @default(false)
+  penalty_start_date DateTime?      @db.Timestamptz(6)
+  penalty_end_date   DateTime?      @db.Timestamptz(6)
+  status             member_status? @default(ACTIVE)
+
+  @@index([member_id], map: "idx_memberid")
+}
+
+model transaction {
+  id          String              @id @default(uuid())
+  category    transaction_status?
+  book_id     String?             @db.VarChar(255)
+  member_id   String?             @db.VarChar(255)
+  start_date  DateTime?           @db.Timestamp(6)
+  due_date    DateTime?           @db.Timestamp(6)
+  return_date DateTime?           @db.Timestamp(6)
+
+  @@index([id], map: "trans_idx")
+}
+
+enum transaction_status {
+  RETURNED
+  BORROWING
+}
+
+enum member_status {
+  ACTIVE
+  INACTIVE
+}
